@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema id="XMLSchema1" targetNamespace="http://tempuri.org/XMLSchema1.xsd" elementFormDefault="qualified"
+	xmlns="http://tempuri.org/XMLSchema1.xsd" xmlns:mstns="http://tempuri.org/XMLSchema1.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="asset">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="fileName" type="xs:string" />
+				<xs:element name="fileDuration" type="xs:string" />
+				<xs:element name="startDate" type="xs:string" />
+				<xs:element name="startYear" type="xs:string" />
+				<xs:element name="startMonth" type="xs:string" />
+				<xs:element name="startDay" type="xs:string" />
+				<xs:element name="startMonthAsText" type="xs:string" />
+				<xs:element name="startTimeCode" type="xs:string" />
+				<xs:element name="startTime" type="xs:string" />
+				<xs:element name="sessionID" type="xs:string" />
+				<xs:element name="recorderName" type="xs:string" />
+				<xs:element name="inputID" type="xs:string" />
+				<xs:element name="userID" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

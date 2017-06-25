@@ -1,0 +1,104 @@
+<!-- saved from url=(0007)http:// -->
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>HotFolderMonitorInteractive.Config</TITLE>
+<LINK REL=STYLESHEET HREF="../CommentReport.css" TYPE="text/css">
+</HEAD>
+<BODY topmargin=0 rightmargin=0 leftmargin=0 style="background-image: url(../titletile.jpg); background-repeat:repeat-x; background-position: 0 0;" >
+<DIV CLASS="PageHeading">HotFolderMonitorInteractive.Config Class</DIV>
+<DIV CLASS="Description">
+
+Holds configuration information, and keeps it updated given changes
+Uses backup of main configuration file:
+c:\Program Files\Sony\MediaWatchServer\Server\ServerConfig.xml
+into ServerConfigBackup.xml in local directory.
+<P>
+
+</DIV>
+<IMG src="../GradLeft.jpg" width=7 height=378 alt="" border="0" style="position:absolute; left:10; top:18;z-Index:2">
+<IMG src="../GradTop.jpg" width=352 height=7 alt="" border="0" align="top" style="position:absolute; left:10; top:18; z-index:1">
+<DIV CLASS="Remarks">
+<SPAN CLASS="RemarkHdrX">Access: </SPAN>Public</DIV>
+<DIV CLASS="Remarks">
+<SPAN CLASS="RemarkHdrX">Base Classes: </SPAN>Object</DIV>
+<TABLE CLASS="InfoTable" cellpadding=0 cellspacing=0>
+<TR height=20>
+<TD width=20>&nbsp;</TD>
+<TD valign=top align=left width=9 bgcolor="#cccc66"><IMG SRC="../graycorner.jpg" align=top></TD>
+<TD CLASS="TableLightLabel" WIDTH=206>Members</TD>
+<TD CLASS="TableLightLabel" >Description</TD>
+<TD width=20>&nbsp;</TD>
+</TR>
+<TR height=20>
+<TD width=20>&nbsp;</TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD CLASS="TableLightDesc"><A HREF="CWP161.HTM" TARGET="CNTFRAME">mwConnection</A></TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD width=20>&nbsp;</TD>
+</TR><TR height=20>
+<TD width=20>&nbsp;</TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD CLASS="TableLightDesc"><A HREF="CWP162.HTM" TARGET="CNTFRAME">configWatcher</A></TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD width=20>&nbsp;</TD>
+</TR><TR height=20>
+<TD width=20>&nbsp;</TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD CLASS="TableLightDesc"><A HREF="CWP163.HTM" TARGET="CNTFRAME">Config</A></TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD width=20>&nbsp;</TD>
+</TR><TR height=20>
+<TD width=20>&nbsp;</TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD CLASS="TableLightDesc"><A HREF="CWP164.HTM" TARGET="CNTFRAME">startWatching</A></TD>
+<TD CLASS="TableLightDesc">
+Start looking for changes to config file.
+<P>
+</TD>
+<TD width=20>&nbsp;</TD>
+</TR><TR height=20>
+<TD width=20>&nbsp;</TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD CLASS="TableLightDesc"><A HREF="CWP165.HTM" TARGET="CNTFRAME">stopWatching</A></TD>
+<TD CLASS="TableLightDesc">
+Stop looking for changes to config file.
+<P>
+</TD>
+<TD width=20>&nbsp;</TD>
+</TR><TR height=20>
+<TD width=20>&nbsp;</TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD CLASS="TableLightDesc"><A HREF="CWP166.HTM" TARGET="CNTFRAME">newConfigFile</A></TD>
+<TD CLASS="TableLightDesc">
+Called when config file is created.
+As this is a new config file, clear all channels from database.
+Then call loadConfigFile to get new channels.
+<P>
+</TD>
+<TD width=20>&nbsp;</TD>
+</TR><TR height=20>
+<TD width=20>&nbsp;</TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD CLASS="TableLightDesc"><A HREF="CWP167.HTM" TARGET="CNTFRAME">loadConfigFile</A></TD>
+<TD CLASS="TableLightDesc">
+LoadConfigFile.
+Called when config file changed or created, but also called when folder monitor
+is started up. This will provide information on active channels, and allow folder
+monitor to know what to start watching for.
+TODO: Implement removal of data if channel removed from config file.
+<P>
+</TD>
+<TD width=20>&nbsp;</TD>
+</TR><TR height=20>
+<TD width=20>&nbsp;</TD>
+<TD CLASS="TableLightDesc">&nbsp;</TD>
+<TD CLASS="TableLightDesc"><A HREF="CWP168.HTM" TARGET="CNTFRAME">updatedConfigFile</A></TD>
+<TD CLASS="TableLightDesc">
+Called when Server config file changes.
+<P>
+</TD>
+<TD width=20>&nbsp;</TD>
+</TR></TABLE>
+</BODY>
+</HTML>

@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title></title>
+		<meta name="GENERATOR" content="Microsoft Visual Studio .NET 7.1">
+		<meta name="ProgId" content="VisualStudio.HTML">
+		<meta name="Originator" content="Microsoft Visual Studio .NET 7.1">
+	</head>
+	<body>
+		<H1>Tasks for HotFolderMonitorInteractive</H1>
+		<UL>
+			<LI>
+				Implement functionality to read central config file, and act appropriately for 
+				changes. (xml diffgram?)<BR>
+				ServerConfig.xml (in this directory, normally in C:\Program 
+				Files\Sony\MediaWatchServer\Server) contains config information.</LI>
+			<UL>
+				<LI>
+					When application is started, read this file, and once it is started monitor 
+					changes to the file.</LI>
+				<LI>
+					On change, check for differences:</LI>
+				<UL>
+					<LI>
+						Add Channel. read parameters, and add channel, also include preferences for 
+						purge (another column in channel table?? - default 90 days).</LI>
+					<LI>
+						Delete Channel. read parameters, delete channel and all of its' assets.</LI>
+					<LI>
+						Modify Channel, read parameters for action when necessary. A modification of 
+						frame rate would be unexpected (Exception??)</LI></UL>
+			</UL>
+			<LI>
+				Implement proper installer.</LI>
+			<LI>
+				Implement as service<BR>
+				(This worked in theory, but there were security issues)</LI>
+			<LI>
+				Implement auto deletion of assets.</LI>
+			<LI>
+				Implement capture of asrun data.</LI></UL>
+	</body>
+</html>

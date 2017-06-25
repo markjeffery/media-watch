@@ -1,0 +1,47 @@
+<?xml version="1.0" standalone="yes" ?>
+<xs:schema id="chunkDataSet" targetNamespace="http://www.tempuri.org/chunkDataSet.xsd" xmlns:mstns="http://www.tempuri.org/chunkDataSet.xsd"
+	xmlns="http://www.tempuri.org/chunkDataSet.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" attributeFormDefault="qualified" elementFormDefault="qualified">
+	<xs:element name="chunkDataSet" msdata:IsDataSet="true" msdata:Locale="en-GB">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element name="chunk">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="start_tc" type="xs:dateTime" />
+							<xs:element name="channel" type="xs:int" />
+							<xs:element name="end_tc" type="xs:dateTime" />
+							<xs:element name="duration" type="xs:long" />
+							<xs:element name="offset" type="xs:int" />
+							<xs:element name="isblank" type="xs:boolean" />
+							<xs:element name="url" type="xs:string" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="SelectChunk">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="start_tc" type="xs:dateTime" />
+							<xs:element name="channel_id" type="xs:int" />
+							<xs:element name="end_tc" type="xs:dateTime" />
+							<xs:element name="duration" type="xs:long" />
+							<xs:element name="offset" type="xs:int" />
+							<xs:element name="isblank" type="xs:boolean" />
+							<xs:element name="url" type="xs:string" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+		<xs:unique name="Constraint1" msdata:PrimaryKey="true">
+			<xs:selector xpath=".//mstns:chunk" />
+			<xs:field xpath="mstns:start_tc" />
+			<xs:field xpath="mstns:channel" />
+		</xs:unique>
+		<xs:unique name="SelectChunk_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+			<xs:selector xpath=".//mstns:SelectChunk" />
+			<xs:field xpath="mstns:start_tc" />
+			<xs:field xpath="mstns:channel_id" />
+		</xs:unique>
+	</xs:element>
+</xs:schema>

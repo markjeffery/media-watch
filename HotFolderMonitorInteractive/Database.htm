@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title></title>
+		<meta name="GENERATOR" content="Microsoft Visual Studio .NET 7.1">
+		<meta name="ProgId" content="VisualStudio.HTML">
+		<meta name="Originator" content="Microsoft Visual Studio .NET 7.1">
+	</head>
+	<body>
+		<H1>Database design</H1>
+		<P>The database is designed along the lines of the XML data that is dropped into 
+			the hot folders. There are two sources of data:</P>
+		<H2>chunk data.</H2>
+		<P>For each chunk of encoded video, there is a start timecode, finish timecode and 
+			a duration. There is also a channel name and a url for the actual video.</P>
+		<H2>asrun data.</H2>
+		<P>The asrun data comes from another source, and is also placed in a hot folder. 
+			This data includes the same start timecode, finish timecode and duration, but 
+			it also includes channel name,title and other information.</P>
+		<H2>Table design.</H2>
+		<P>There are 3 tables in the design.</P>
+		<P>The channel table holds information on the channel, and is used by asrun and 
+			chunk data</P>
+		<UL>
+			<LI>
+			id int(4)
+			<LI>
+			name varchar(50)
+			<LI>
+				fps int(4)</LI></UL>
+		<P>The chunk table holds information on the chunks</P>
+		<UL>
+			<LI>
+			start_dt&nbsp;datetime(8)
+			<LI>
+			start_frame int(4)
+			<LI>
+			channel int(4)&nbsp;
+			<LI>
+			end_dt datetime(8)
+			<LI>
+			end_frame int(4)
+			<LI>
+			duration int(8)
+			<LI>
+			offset int(8)
+			<LI>
+			isblank bit(1)
+			<LI>
+				url varchar(512)</LI></UL>
+		<P dir="ltr">The asrun table holds information for each asrun entry.</P>
+		<UL>
+			<LI>
+			start_dt&nbsp;datetime(8)
+			<LI>
+			start_frame int(4)
+			<LI>
+			end_dt datetime(8)
+			<LI>
+			end_frame int(4)
+			<LI>
+			duration int(8)
+			<LI>
+			offset int(8)
+			<LI>
+			isblank bit(1)
+			<LI>
+			id&nbsp; varchar(64)
+			<LI>
+			title&nbsp; varchar(64)
+			<LI>
+			s&nbsp; varchar(64)
+			<LI>
+			status&nbsp; varchar(64)
+			<LI>
+			ch&nbsp; varchar(64)
+			<LI>
+			reconcile&nbsp; varchar(64)
+			<LI>
+				ty varchar(64)</LI></UL>
+		<H2>Timecodes</H2>
+		<P>The system is synchronised with the house LTC (Linear Time Code). This might be 
+			working on 29.97 frames (represented as 30)&nbsp;or 25 frames per second.</P>
+		<P>The house LTC can change as a result of daylight savings time, and other things, 
+			so the time will be stored in the initial Time Zone (not necessarily UTC).</P>
+		<P>When the house LTC changes, then this change is recorded by the capture process, 
+			and an offset is given with each XML record.</P>
+		<P>The capture from the hot folder applies this offset, so that it stores the 
+			original time (before daylight adjustments have been made).</P>
+		<P>The application then adds the offset when displaying the time.</P>
+		<H2>Comparisons of Timecodes</H2>
+		<P>In SQL Server, in order to get a comparison of timecodes, we need to do the 
+			following calculation:</P>
+		<P>dateadd(ms,(1000*frame/channels.fps),datetime)</P>
+		<P>This adds a millisecond amount to the date/time combination in order to do 
+			comparisons between timecodes. The channels table is found by doing a join by 
+			channel number. The approximate value for fps is OK because we are just doing a 
+			comparison.</P>
+		<P><EM>It is possible that this calculation may make indexed searching slow. I shall 
+				evaluate this, to see if an alternative method needs to be considered.</EM></P>
+		<H2>Calculations of Duration.</H2>
+		<P>Now been partially implemented in the class library: Sony.MediaWatch.Utilities 
+			as LinearTimeCode</P>
+		<H2>Blanks</H2>
+		<P>In order to easily represent blank times in a single query for filling up data 
+			grids, then I propose that we have a blank area that is there from the 
+			beginning, which starts from (say) 1/Jan/1970 to 31/Dec/2999</P>
+		<P>When a new timecode comes in, then (parameter @start, @duration, @end, 
+			@channel):</P>
+		<UL>
+			<LI>
+				<EM>Check for channel availability.<BR>
+				</EM>
+			Error raised if channel not there, as this would violate a constraint on the 
+			tables.
+			<LI>
+				<EM>Check for inconsistency in start, duration and end.</EM><BR>
+			if (@start + @duration) &lt;&gt; @end raise error
+			<LI>
+				<EM>Check for new timecode with start time inside another timecode.</EM><BR>
+				select count(*) from&nbsp;chunk where @start &gt;= chunk.start and&nbsp;@start 
+				&lt;= chunk.end and not(chunk.isblank == 1)<BR>
+			if count &gt; 0 raise error
+			<LI>
+				<EM>Check for new timecode with end time inside another timecode.<BR>
+				</EM>select count(*) from chunk where end &gt;= chunk.start and end &lt;= 
+				chunk.end and not (chunk.isblank == 1)<BR>
+			if count &gt; 0 raise error
+			<LI>
+				<EM>Check for new timecode completely enclosing another timecode.</EM><BR>
+				select count(*) from chunk where start &lt; chunk.start and end &gt; chunk.end 
+				and not (chunk.isblank == 1)<BR>
+			if count &gt; 0 raise error
+			<LI>
+				<EM>Find blank space that encloses new timecode.</EM><BR>
+				select chunk.start as blank_start, chunk.end as blank_end from chunk where 
+				start &gt;= chunk.start and and &lt; chunk.end and (chunk.isblank == 1)<BR>
+			if count = 0 raise error
+			<LI>
+				<EM>Update blank space so that new start is next frame on from new timecode's end.</EM><BR>
+				update chunk<BR>
+				set start = @end+1(frame)<BR>
+				where chunk.end = blank_end<BR>
+			and (chunk.isblank == 1)
+			<LI>
+				<EM>Insert new blank space between blank_start and chunk_start-1(frame) (This done 
+					in C#/SQL)</EM><BR>
+				if (blank_start&nbsp;&lt; chunk.start.add(frame,-1)) {<BR>
+				/* SQL */<BR>
+				insert into chunk (start, end, duration, isblank) values (blank_start, 
+				chunk.start.add(frame,-1),duration,1)<BR>
+			}
+			<LI>
+				<EM>Finally insert new timecode!</EM><BR>
+				insert into chunk (start, end, duration, isblank, channel_id ...) values 
+				(@start,@end,@duration,0,(select channel.id from channels where channels.name = 
+				@channel) ...)</LI></UL>
+		<DIV class="e">
+			<DIV class="c" style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><A class="b" onfocus="h()" onclick="return false" href="#">-</A>
+				<SPAN class="m">&lt;</SPAN><SPAN class="t">asset</SPAN><SPAN class="m">&gt;</SPAN></DIV>
+			<DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">fileName</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">Prog 141 0040 31-07-2003 
+19-32-55-10</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">fileName</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">fileDuration</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">00:03:00:00</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">fileDuration</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">startDate</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">2003-07-31</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">startDate</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">startYear</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">2003</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">startYear</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">startMonth</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">7</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">startMonth</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">startDay</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">31</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">startDay</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">startMonthAsText</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">july</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">startMonthAsText</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">startTimeCode</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">19:32:55:10</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">startTimeCode</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">startTime</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">19:32:55</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">startTime</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">sessionID</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">14</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">sessionID</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">recorderName</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">gbbprlbasws141</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">recorderName</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">inputID</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">1</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">inputID</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV class="e">
+					<DIV style="MARGIN-LEFT: 1em; TEXT-INDENT: -2em"><SPAN class="b">&nbsp;</SPAN>
+						<SPAN class="m">&lt;</SPAN><SPAN class="t">userID</SPAN><SPAN class="m">&gt;</SPAN><SPAN class="tx">BBC1</SPAN><SPAN class="m">&lt;/</SPAN><SPAN class="t">userID</SPAN><SPAN class="m">&gt;</SPAN>
+					</DIV>
+				</DIV>
+				<DIV><SPAN class="b">&nbsp;</SPAN>
+					<SPAN class="m">&lt;/</SPAN><SPAN class="t">asset</SPAN><SPAN class="m">&gt;</SPAN></DIV>
+			</DIV>
+		</DIV>
+	</body>
+</html>

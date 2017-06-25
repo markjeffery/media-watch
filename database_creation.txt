@@ -1,0 +1,522 @@
+IF EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'MediaWatch')
+	DROP DATABASE [MediaWatch]
+GO
+
+CREATE DATABASE [MediaWatch]  ON (NAME = N'MediaWatch', FILENAME = N'E:\Program Files\Microsoft SQL Server\MSSQL\Data\MediaWatch.mdf' , SIZE = 2, FILEGROWTH = 10%) LOG ON (NAME = N'MediaWatch_log', FILENAME = N'E:\Program Files\Microsoft SQL Server\MSSQL\Data\MediaWatch_log.LDF' , FILEGROWTH = 10%)
+ COLLATE Latin1_General_CI_AS
+GO
+
+exec sp_dboption N'MediaWatch', N'autoclose', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'bulkcopy', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'trunc. log', N'true'
+GO
+
+exec sp_dboption N'MediaWatch', N'torn page detection', N'true'
+GO
+
+exec sp_dboption N'MediaWatch', N'read only', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'dbo use', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'single', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'autoshrink', N'true'
+GO
+
+exec sp_dboption N'MediaWatch', N'ANSI null default', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'recursive triggers', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'ANSI nulls', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'concat null yields null', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'cursor close on commit', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'default to local cursor', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'quoted identifier', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'ANSI warnings', N'false'
+GO
+
+exec sp_dboption N'MediaWatch', N'auto create statistics', N'true'
+GO
+
+exec sp_dboption N'MediaWatch', N'auto update statistics', N'true'
+GO
+
+if( ( (@@microsoftversion / power(2, 24) = 8) and (@@microsoftversion & 0xffff >= 724) ) or ( (@@microsoftversion / power(2, 24) = 7) and (@@microsoftversion & 0xffff >= 1082) ) )
+	exec sp_dboption N'MediaWatch', N'db chaining', N'false'
+GO
+
+use [MediaWatch]
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[FK_asrun_channel]') and OBJECTPROPERTY(id, N'IsForeignKey') = 1)
+ALTER TABLE [dbo].[asrun] DROP CONSTRAINT FK_asrun_channel
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[FK_chunk_channel]') and OBJECTPROPERTY(id, N'IsForeignKey') = 1)
+ALTER TABLE [dbo].[chunk] DROP CONSTRAINT FK_chunk_channel
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[channel_insert]') and OBJECTPROPERTY(id, N'IsTrigger') = 1)
+drop trigger [dbo].[channel_insert]
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[GetAsRun]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+drop procedure [dbo].[GetAsRun]
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[GetAsRunByDate]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+drop procedure [dbo].[GetAsRunByDate]
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[GetAsRunByDateReverse]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+drop procedure [dbo].[GetAsRunByDateReverse]
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[GetMaxDate]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+drop procedure [dbo].[GetMaxDate]
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[GetMinDate]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+drop procedure [dbo].[GetMinDate]
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[prev_ltc]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+drop procedure [dbo].[prev_ltc]
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[asrun]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+drop table [dbo].[asrun]
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[channel]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+drop table [dbo].[channel]
+GO
+
+if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[chunk]') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+drop table [dbo].[chunk]
+GO
+
+if not exists (select * from master.dbo.syslogins where loginname = N'friend')
+BEGIN
+	declare @logindb nvarchar(132), @loginlang nvarchar(132) select @logindb = N'FriendsData', @loginlang = N'us_english'
+	if @logindb is null or not exists (select * from master.dbo.sysdatabases where name = @logindb)
+		select @logindb = N'master'
+	if @loginlang is null or (not exists (select * from master.dbo.syslanguages where name = @loginlang) and @loginlang <> N'us_english')
+		select @loginlang = @@language
+	exec sp_addlogin N'friend', null, @logindb, @loginlang
+END
+GO
+
+if not exists (select * from master.dbo.syslogins where loginname = N'friends')
+BEGIN
+	declare @logindb nvarchar(132), @loginlang nvarchar(132) select @logindb = N'FriendsData', @loginlang = N'us_english'
+	if @logindb is null or not exists (select * from master.dbo.sysdatabases where name = @logindb)
+		select @logindb = N'master'
+	if @loginlang is null or (not exists (select * from master.dbo.syslanguages where name = @loginlang) and @loginlang <> N'us_english')
+		select @loginlang = @@language
+	exec sp_addlogin N'friends', null, @logindb, @loginlang
+END
+GO
+
+if not exists (select * from master.dbo.syslogins where loginname = N'guest')
+BEGIN
+	declare @logindb nvarchar(132), @loginlang nvarchar(132) select @logindb = N'Northwind', @loginlang = N'us_english'
+	if @logindb is null or not exists (select * from master.dbo.sysdatabases where name = @logindb)
+		select @logindb = N'master'
+	if @loginlang is null or (not exists (select * from master.dbo.syslanguages where name = @loginlang) and @loginlang <> N'us_english')
+		select @loginlang = @@language
+	exec sp_addlogin N'guest', null, @logindb, @loginlang
+END
+GO
+
+if not exists (select * from master.dbo.syslogins where loginname = N'STUDY\Administrator')
+	exec sp_grantlogin N'STUDY\Administrator'
+	exec sp_defaultdb N'STUDY\Administrator', N'master'
+	exec sp_defaultlanguage N'STUDY\Administrator', N'us_english'
+GO
+
+if not exists (select * from master.dbo.syslogins where loginname = N'STUDY\ASPNET')
+	exec sp_grantlogin N'STUDY\ASPNET'
+	exec sp_defaultdb N'STUDY\ASPNET', N'MediaWatch'
+	exec sp_defaultlanguage N'STUDY\ASPNET', N'us_english'
+GO
+
+if not exists (select * from master.dbo.syslogins where loginname = N'nt authority\network service')
+	exec sp_grantlogin N'nt authority\network service'
+	exec sp_defaultdb N'nt authority\network service', N'MediaWatch'
+	exec sp_defaultlanguage N'nt authority\network service', N'us_english'
+GO
+
+exec sp_addsrvrolemember N'STUDY\Administrator', sysadmin
+GO
+
+if not exists (select * from dbo.sysusers where name = N'NT AUTHORITY\NETWORK SERVICE' and uid < 16382)
+	EXEC sp_grantdbaccess N'nt authority\network service', N'NT AUTHORITY\NETWORK SERVICE'
+GO
+
+exec sp_addrolemember N'db_owner', N'NT AUTHORITY\NETWORK SERVICE'
+GO
+
+CREATE TABLE [dbo].[asrun] (
+	[start_dt] [datetime] NOT NULL ,
+	[start_frame] [smallint] NOT NULL ,
+	[channel] [int] NOT NULL ,
+	[end_dt] [datetime] NOT NULL ,
+	[end_frame] [int] NOT NULL ,
+	[duration] [bigint] NOT NULL ,
+	[offset] [int] NOT NULL ,
+	[isblank] [bit] NOT NULL ,
+	[id] [varchar] (64) COLLATE Latin1_General_CI_AS NULL ,
+	[title] [varchar] (64) COLLATE Latin1_General_CI_AS NULL ,
+	[s] [varchar] (64) COLLATE Latin1_General_CI_AS NULL ,
+	[status] [varchar] (64) COLLATE Latin1_General_CI_AS NULL ,
+	[ch] [varchar] (64) COLLATE Latin1_General_CI_AS NULL ,
+	[reconcile] [varchar] (64) COLLATE Latin1_General_CI_AS NULL ,
+	[ty] [varchar] (64) COLLATE Latin1_General_CI_AS NULL 
+) ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[channel] (
+	[id] [int] NOT NULL ,
+	[name] [varchar] (50) COLLATE Latin1_General_CI_AS NOT NULL ,
+	[fps] [int] NOT NULL 
+) ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[chunk] (
+	[start_dt] [datetime] NOT NULL ,
+	[start_frame] [smallint] NOT NULL ,
+	[channel] [int] NOT NULL ,
+	[end_dt] [datetime] NOT NULL ,
+	[end_frame] [int] NOT NULL ,
+	[duration] [bigint] NOT NULL ,
+	[offset] [int] NOT NULL ,
+	[isblank] [bit] NOT NULL ,
+	[url] [varchar] (512) COLLATE Latin1_General_CI_AS NOT NULL 
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[asrun] WITH NOCHECK ADD 
+	CONSTRAINT [PK_asrun] PRIMARY KEY  CLUSTERED 
+	(
+		[start_dt],
+		[start_frame],
+		[channel]
+	)  ON [PRIMARY] 
+GO
+
+ALTER TABLE [dbo].[channel] WITH NOCHECK ADD 
+	CONSTRAINT [PK_channel] PRIMARY KEY  CLUSTERED 
+	(
+		[id]
+	)  ON [PRIMARY] 
+GO
+
+ALTER TABLE [dbo].[chunk] WITH NOCHECK ADD 
+	CONSTRAINT [PK_chunk] PRIMARY KEY  CLUSTERED 
+	(
+		[start_dt],
+		[start_frame],
+		[channel]
+	)  ON [PRIMARY] 
+GO
+
+ALTER TABLE [dbo].[asrun] ADD 
+	CONSTRAINT [DF_asrun_offset] DEFAULT (0) FOR [offset]
+GO
+
+ALTER TABLE [dbo].[chunk] ADD 
+	CONSTRAINT [DF_chunk_offset] DEFAULT (0) FOR [offset]
+GO
+
+ALTER TABLE [dbo].[asrun] ADD 
+	CONSTRAINT [FK_asrun_channel] FOREIGN KEY 
+	(
+		[channel]
+	) REFERENCES [dbo].[channel] (
+		[id]
+	) ON DELETE CASCADE  ON UPDATE CASCADE 
+GO
+
+ALTER TABLE [dbo].[chunk] ADD 
+	CONSTRAINT [FK_chunk_channel] FOREIGN KEY 
+	(
+		[channel]
+	) REFERENCES [dbo].[channel] (
+		[id]
+	) ON DELETE CASCADE  ON UPDATE CASCADE 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE dbo.GetAsRun
+	(
+	@channel varchar(50)
+	)
+	/* Return information from asrun table for selected channel
+	   Information is converted from datetime + frame to
+	   HH:MM:SS:FF
+	*/
+AS
+	SELECT CONVERT(varchar, asrun.datetime, 8)
+	       + ':' + CAST(asrun.frame AS varchar(2)) AS [Start TC],
+	       CONVERT(varchar, DATEADD(s, asrun.duration - 1, asrun.datetime), 8)
+	       + ':24' AS [End TC],
+	       asrun.title AS Title
+	FROM asrun
+	INNER JOIN channels ON asrun.channel = channels.id
+	WHERE (channels.name = @channel)
+	ORDER BY asrun.datetime, asrun.frame
+	RETURN 
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE dbo.GetAsRunByDate
+	(
+		@channel varchar(50),
+		@startdate datetime
+	)
+
+AS
+	SELECT TOP 10 convert(varchar, asrun.datetime, 9), CONVERT(varchar, asrun.datetime, 8)
+	       + ':' + CAST(asrun.frame AS varchar(2)) AS [Start TC],
+	       CONVERT(varchar, DATEADD(s, asrun.duration - 1, asrun.datetime), 8)
+	       + ':24' AS [End TC],
+	       asrun.title AS Title
+	FROM asrun
+	INNER JOIN channels ON asrun.channel = channels.id
+	WHERE (channels.name = @channel)
+	AND (dateadd(ms,(1000*asrun.frame/channels.fps),asrun.datetime) >= @startdate)
+	ORDER BY asrun.datetime, asrun.frame
+	RETURN 
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE dbo.GetAsRunByDateReverse
+	(
+		@channel varchar(50),
+		@startdate datetime
+	)
+
+/*
+ * returns asrun records previous to given date.
+ * This is to implement previous view on datagrid.
+ * data is sorted in wrong order!
+ * Needs to be unsorted to work in right order!
+ */
+AS    
+          SELECT TOP 10 asrun.datetime, CONVERT(varchar, asrun.datetime, 8)
+	       + ':' + CAST(asrun.frame AS varchar(2)) AS [Start TC],
+	       CONVERT(varchar, DATEADD(s, asrun.duration - 1, asrun.datetime), 8)
+	       + ':24' AS [End TC],
+	       asrun.title AS Title
+	FROM asrun
+	INNER JOIN channels ON asrun.channel = channels.id
+	WHERE (channels.name = @channel)
+	AND (asrun.datetime < @startdate)
+	ORDER BY asrun.datetime, asrun.frame desc
+
+	RETURN 
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE dbo.GetMaxDate
+	(
+		@channel varchar(50)
+	)
+AS
+	SELECT     MAX(asrun.datetime)
+	FROM         asrun LEFT OUTER JOIN
+	                      channels ON asrun.channel = channels.id
+	WHERE     (channels.name = @channel)
+	RETURN 
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE dbo.GetMinDate
+	(
+		@channel varchar(50)
+	)
+AS
+	SELECT     MIN(asrun.datetime)
+	FROM         asrun LEFT OUTER JOIN
+	                      channels ON asrun.channel = channels.id
+	WHERE     (channels.name = @channel)
+	RETURN 
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE PROCEDURE dbo.prev_ltc
+	/*
+	 * return previous time code
+	 * given current time code.
+	 * Currently only works for 25 fps, doesn't cope with drop frames.
+	 */
+	@ltc_dt datetime,
+	@ltc_frame smallint,
+	@fps smallint,
+	@prev_dt datetime output,
+	@prev_frame smallint output
+AS
+   declare @ms as int
+   
+   print ' started running'
+   if (@fps <> 25) and (@fps <> 30)
+      BEGIN
+         GOTO E_FPSOUTOFRANGEERROR
+      END
+   /* Remove milliseconds from ltc_dt */
+   set @ms = datepart(ms, @ltc_dt)
+   set @prev_dt = dateadd(ms, -@ms, @ltc_dt)
+   set @prev_frame = @ltc_frame - 1
+   if (@prev_frame < 0) /* Include OR statement for 30fps drop frame */
+      BEGIN
+         set @prev_frame = @fps - 1
+         set @prev_dt = dateadd(s, -1, @prev_dt)
+      END
+   /* Add milliseconds back on */
+   set @prev_dt = dateadd(ms, cast(@prev_frame as float) / cast(@fps as float), @prev_dt)
+   print 'Previous Date is ' + convert(varchar, @prev_dt, 8) + ':' + cast(@prev_frame as varchar(2))
+   
+CleanUp:
+	RETURN
+	
+E_FPSOUTOFRANGEERROR:
+	RAISERROR ('fps must be be 25 or 30', 16, 1)
+	GOTO CleanUp
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
+SET QUOTED_IDENTIFIER ON 
+GO
+SET ANSI_NULLS ON 
+GO
+
+CREATE TRIGGER channel_insert
+ON dbo.channel
+FOR INSERT
+AS
+/*
+ * Create new blank record in asrun table for newly
+ * added channel.
+ * duration is only 100% accurate for 25fps data.
+ * duration is based on the calculation that for
+ * 30 fps, there are 17,982 frames for each complete 10 minute period.
+ * 25 fps, there are 15,000 frames for each complete 10 minute period.
+ */
+   DECLARE @fps tinyint,
+           @totalframes bigint
+   
+   SELECT @fps  = (select fps from inserted)
+   
+   IF (@fps <> 25) and (@fps <> 30) 
+      BEGIN
+         RAISERROR ('fps must be 25 or 30', 16, 1)
+         ROLLBACK TRANSACTION
+      END
+   IF (@fps = 25)
+      BEGIN
+         SET @totalframes = cast(1500 as bigint) * cast((datediff(mi,'01-Jan-1980 00:00:00', '31-Dec-2099 23:59:00')) as bigint)
+         PRINT 'Total frames is @totalframes'
+      END
+   IF (@fps = 30)
+      BEGIN
+         SET @totalframes = cast(1798 as bigint) * cast((datediff(mi,'01-Jan-1980 00:00:00', '31-Dec-2099 23:59:00')) as bigint)
+         PRINT 'Total frames is @totalframes'
+      END
+
+	INSERT INTO asrun (start_dt, start_frame,
+					   end_dt, end_frame,
+					   duration, isblank,
+					   channel)
+		SELECT '01-Jan-1980 00:00:00', 0,
+		       '31-Dec-2099 23:59:00', ins.fps,
+		       @totalframes, 1 , ins.id
+		FROM inserted ins
+
+	INSERT INTO chunk (start_dt, start_frame,
+					   end_dt, end_frame,
+					   duration, isblank,
+					   url,
+					   channel)
+		SELECT '01-Jan-1980 00:00:00', 0,
+		       '31-Dec-2099 23:59:00', ins.fps,
+		       @totalframes, 1, 'blank.html', ins.id
+		FROM inserted ins
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+

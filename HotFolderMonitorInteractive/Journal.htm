@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title></title>
+		<meta name="GENERATOR" content="Microsoft Visual Studio .NET 7.1">
+		<meta name="ProgId" content="VisualStudio.HTML">
+		<meta name="Originator" content="Microsoft Visual Studio .NET 7.1">
+	</head>
+	<body>
+		<H1>Journal for MediaWatch Front end.</H1>
+		<P>Mark Jeffery.</P>
+		<H2>29-July-2003</H2>
+		<UL>
+			<LI>
+			Installed Windows Media 9 SDK to C:\WMSDK
+			<LI>
+				Installed SQL Server Desktop Engine.
+				<UL>
+					<LI>
+					SAPWD is SONY123
+					<LI>
+						Instance name is NetSDK</LI></UL>
+			<LI>
+			Configured SDK Quickstarts, tutorials and samples
+			<LI>
+			Created MediaWatch database tables asrun, channels and chunks.
+			<LI>
+				Configured access to MSDE for ASPNET user for databases. (In Windows Server 
+				2003 ASP.NET User Account is 'NT AUTHORITY\NETWORK SERVICE' See <A href="file:///C:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1\Samples\Setup\html\ConfigDetails.htm">
+					Config Details</A> for more details)
+				<UL>
+					<LI>
+						<PRE>osql -E -S (local)\NetSDK -Q "sp_grantlogin 'NT AUTHORITY\NETWORK SERVICE'" osql -E -S (local)\NetSDK -d MediaWatch -Q "sp_grantdbaccess 'NT AUTHORITY\NETWORK SERVICE'"</PRE>
+					<LI>
+						<PRE>osql -E -S (local)\NetSDK -d MediaWatch -Q "sp_addrolemember 'db_owner', 'NT AUTHORITY\NETWORK SERVICE'"</PRE>
+					</LI>
+				</UL>
+			<LI>
+			Created MediaWatchPopulate application to populate tables with definable 
+			amounts of data, so that testing can be done with "real" amounts of data.
+			<LI>
+				Created asrun2 ASP.Net project to experiment with different ways of selecting 
+				data.</LI></UL>
+		<P>09:00-12:30, 13:45-17:45 = 7.5 hours</P>
+		<H2>30-July-2003</H2>
+		<UL>
+			<LI>
+				Changed asrun2 application
+				<UL>
+					<LI>
+					Changed queries over to Stored procedures.
+					<LI>
+						Currently looking at using Custom Page controls to start to allow selection.</LI></UL>
+			</LI>
+		</UL>
+		<P>09:05 - 12:05, 13:30-17:15 = 6.75 hours</P>
+		<H2>31-July-2003</H2>
+		<UL>
+			<LI>
+				Added some stored procedures:</LI>
+			<UL>
+				<LI>
+					GetAsRunByDate(channel, startdate)<BR>
+					returns 10 records for grid list sorted by date</LI>
+				<LI>
+					GetAsRunByDate(channel,startdate)<BR>
+					returns previous 10 records for grid list (unfortunately reverse sorted - I'm 
+					working on it!)</LI>
+				<LI>
+					GetMaxDate(channel)<BR>
+					returns maximum date/time/frame given a channel</LI>
+				<LI>
+					GetMinDate(channel)<BR>
+					returns minimum date/time/frame given a channel</LI></UL>
+			<LI>
+				Started implementing incomplete page up / page down on asrun list.<BR>
+				TODO:</LI>
+			<UL>
+				<LI>
+					Currently just uses datetime variable.</LI>
+				<LI>
+					What do I do with timecode??</LI>
+				<UL>
+					<LI>
+						Use datetime field to hold date / time / frame number with frame calculated as 
+						milliseconds. (frame / fps)</LI>
+					<UL>
+						<LI>
+							Can't do this, because of difficulties with holding frame number given 29.997 
+							for NTSC standards.</LI></UL>
+					<LI>
+						Use combination of datetime to hold date / time and int to hold frame number.</LI>
+					<LI>
+						Use datetime field to hold date / time / frame number but hold frame as number 
+						of milliseconds.</LI>
+					<LI>
+						Use special class to hold time. Hold it as
+					</LI>
+				</UL>
+			</UL>
+		</UL>
+		<H2>TODO:</H2>
+		<UL>
+			<LI>
+			Finish off work on Custom Page controls
+			<LI>
+				Look at feasibility of defining new way of representing timecode. Use int to 
+				represent number of frames since the epoch. Use fps on channel table to help 
+				decode this, for example:<BR>
+				seconds = timecode / fps<BR>
+			frame = timecode % fps
+			<LI>
+			Start work on getting calendar control to talk to asrun selection.
+			<LI>
+			Expand asrun selection to also display chunk data
+			<LI>
+			Implement search facility.
+			<LI>
+			Implement Windows Media Player 9 as plugin
+			<LI>
+			Change current components to be custom controls.
+			<LI>
+				Implement XML input service from hot folder.</LI></UL>
+	</body>
+</html>

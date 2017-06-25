@@ -1,0 +1,81 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaWatch", "http://localhost/MediaWatch/MediaWatch.csproj", "{4C570EAD-167A-4C55-8194-FA6C06107119}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "MediaWatchWeb", "MediaWatchWeb\MediaWatchWeb.vdproj", "{07459055-11A1-4635-8108-93462A164C78}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaWatchDBInstaller", "MediaWatchDBInstaller\MediaWatchDBInstaller.csproj", "{054CBC13-3833-4EF2-9F64-619D43822A10}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "MediaWatchDatabase", "MediaWatchDatabase\MediaWatchDatabase.vdproj", "{50DD380F-46B8-4498-B4A8-B491B13F82F0}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaWatchDBDetach", "MediaWatchDBDetach\MediaWatchDBDetach.csproj", "{591FB47C-E8FA-49C0-B134-F89DF99D9522}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopulateAsrun", "PopulateAsrun\PopulateAsrun.csproj", "{38747DCB-5CAB-4671-9347-E49B6E9D06F9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{D63E03A6-F97C-4058-9D80-DF238345A861}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotFolderMonitorInteractive", "HotFolderMonitorInteractive\HotFolderMonitorInteractive.csproj", "{857B11AD-67FA-47E7-8595-B5BCAEA3E131}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Populate", "Populate\Populate.csproj", "{1DBB2831-5D41-441F-BFE1-AA5BB2C9204B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{4C570EAD-167A-4C55-8194-FA6C06107119}.Debug.ActiveCfg = Debug|.NET
+		{4C570EAD-167A-4C55-8194-FA6C06107119}.Debug.Build.0 = Debug|.NET
+		{4C570EAD-167A-4C55-8194-FA6C06107119}.Release.ActiveCfg = Release|.NET
+		{4C570EAD-167A-4C55-8194-FA6C06107119}.Release.Build.0 = Release|.NET
+		{07459055-11A1-4635-8108-93462A164C78}.Debug.ActiveCfg = Debug
+		{07459055-11A1-4635-8108-93462A164C78}.Release.ActiveCfg = Release
+		{054CBC13-3833-4EF2-9F64-619D43822A10}.Debug.ActiveCfg = Debug|.NET
+		{054CBC13-3833-4EF2-9F64-619D43822A10}.Debug.Build.0 = Debug|.NET
+		{054CBC13-3833-4EF2-9F64-619D43822A10}.Release.ActiveCfg = Release|.NET
+		{054CBC13-3833-4EF2-9F64-619D43822A10}.Release.Build.0 = Release|.NET
+		{50DD380F-46B8-4498-B4A8-B491B13F82F0}.Debug.ActiveCfg = Debug
+		{50DD380F-46B8-4498-B4A8-B491B13F82F0}.Release.ActiveCfg = Release
+		{591FB47C-E8FA-49C0-B134-F89DF99D9522}.Debug.ActiveCfg = Debug|.NET
+		{591FB47C-E8FA-49C0-B134-F89DF99D9522}.Debug.Build.0 = Debug|.NET
+		{591FB47C-E8FA-49C0-B134-F89DF99D9522}.Release.ActiveCfg = Release|.NET
+		{591FB47C-E8FA-49C0-B134-F89DF99D9522}.Release.Build.0 = Release|.NET
+		{38747DCB-5CAB-4671-9347-E49B6E9D06F9}.Debug.ActiveCfg = Debug|.NET
+		{38747DCB-5CAB-4671-9347-E49B6E9D06F9}.Debug.Build.0 = Debug|.NET
+		{38747DCB-5CAB-4671-9347-E49B6E9D06F9}.Release.ActiveCfg = Release|.NET
+		{38747DCB-5CAB-4671-9347-E49B6E9D06F9}.Release.Build.0 = Release|.NET
+		{D63E03A6-F97C-4058-9D80-DF238345A861}.Debug.ActiveCfg = Debug|.NET
+		{D63E03A6-F97C-4058-9D80-DF238345A861}.Debug.Build.0 = Debug|.NET
+		{D63E03A6-F97C-4058-9D80-DF238345A861}.Release.ActiveCfg = Release|.NET
+		{D63E03A6-F97C-4058-9D80-DF238345A861}.Release.Build.0 = Release|.NET
+		{857B11AD-67FA-47E7-8595-B5BCAEA3E131}.Debug.ActiveCfg = Debug|.NET
+		{857B11AD-67FA-47E7-8595-B5BCAEA3E131}.Debug.Build.0 = Debug|.NET
+		{857B11AD-67FA-47E7-8595-B5BCAEA3E131}.Release.ActiveCfg = Release|.NET
+		{857B11AD-67FA-47E7-8595-B5BCAEA3E131}.Release.Build.0 = Release|.NET
+		{1DBB2831-5D41-441F-BFE1-AA5BB2C9204B}.Debug.ActiveCfg = Debug|.NET
+		{1DBB2831-5D41-441F-BFE1-AA5BB2C9204B}.Debug.Build.0 = Debug|.NET
+		{1DBB2831-5D41-441F-BFE1-AA5BB2C9204B}.Release.ActiveCfg = Release|.NET
+		{1DBB2831-5D41-441F-BFE1-AA5BB2C9204B}.Release.Build.0 = Release|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
